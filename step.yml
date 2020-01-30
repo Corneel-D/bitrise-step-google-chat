@@ -8,11 +8,11 @@
 # - Bitrise CLI guides: http://devcenter.bitrise.io/bitrise-cli/
 
 title: |-
-  Google Chat
+  Send a Google Chat message
 summary: |
-  Send messages to Google Chat using a webhook
+  Send a message to Google Chat using a webhook
 description: |
-  Send messages to Google Chat using a webhook
+  Send a message to Google Chat using a webhook
 website: https://github.com/Corneel-D/bitrise-step-google-chat
 source_code_url: https://github.com/Corneel-D/bitrise-step-google-chat
 support_url: https://github.com/Corneel-D/bitrise-step-google-chat/issues
@@ -44,9 +44,9 @@ host_os_tags:
 type_tags:
   - notification
 
-is_requires_admin_user: true
-is_always_run: false
-is_skippable: false
+is_requires_admin_user: false
+is_always_run: true
+is_skippable: true
 run_if: ""
 
 deps:
