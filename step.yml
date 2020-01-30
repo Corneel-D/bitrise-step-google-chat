@@ -64,17 +64,14 @@ toolkit:
 
 
 inputs:
-  - example_step_input: Default Value - you can leave this empty if you want to
+  - is_debug_mode: "no"
     opts:
-      title: "Example Step Input"
-      summary: Summary. No more than 2-3 sentences.
+      title: "Enable debug mode?"
       description: |
-        Description of this input.
-
-        Can be Markdown formatted text.
-      is_expand: true
-      is_required: true
-      value_options: []
+        Step prints additional debug information if this option is enabled
+      value_options:
+      - "yes"
+      - "no"
 
 outputs:
   - EXAMPLE_STEP_OUTPUT:

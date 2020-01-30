@@ -4,12 +4,25 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+
+	"github.com/bitrise-io/go-steputils/stepconf"
+	"github.com/bitrise-io/go-utils/log"
 )
 
-func main() {
-	fmt.Println("This is the value specified for the input 'example_step_input':", os.Getenv("example_step_input"))
+// Config object containing all configurations set in bitrise
+type Config struct {
+	Debug bool `env:is_debug_mode,opt[yes,no]"`
+}
 
-	//
+func main() {
+	var conf Config
+	if err := stepconf.Parse(&conf); err != nil {
+		log.Errorf("Error: %s\n", err)
+		os.Exit(1)
+	}
+	stepconf.Print(conf)
+	log.SetEnableDebugLog(conf.Debug)
+
 	// --- Step Outputs: Export Environment Variables for other Steps:
 	// You can export Environment Variables for other Steps with
 	//  envman, which is automatically installed by `bitrise setup`.
