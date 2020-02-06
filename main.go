@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
-	"os/exec"
 
 	"github.com/bitrise-io/go-steputils/stepconf"
 	"github.com/bitrise-io/go-utils/log"
@@ -11,7 +14,117 @@ import (
 
 // Config object containing all configurations set in bitrise
 type Config struct {
-	Debug bool `env:is_debug_mode,opt[yes,no]"`
+	Debug bool `env:"is_debug_mode,opt[yes,no]"`
+
+	// Message
+	WebhookURL        stepconf.Secret `env:"webhook_url"`
+	Title             string          `env:"title"`
+	TitleOnError      string          `env:"title_on_error"`
+	Subtitle          string          `env:"subtitle"`
+	SubtitleOnError   string          `env:"subtitle_on_error"`
+	ImageURL          string          `env:"image"`
+	ImageURLOnError   string          `env:"image_on_error"`
+	ImageStyle        string          `env:"image_style,opt[IMAGE,AVATAR]"`
+	ImageStyleOnError string          `env:"image_style_on_error,opt[IMAGE,AVATAR]"`
+	Text              string          `env:"text"`
+	TextOnError       string          `env:"text_on_error"`
+}
+
+// success is true if the build is successful, false otherwise.
+var success = os.Getenv("BITRISE_BUILD_STATUS") == "0"
+
+func selectValue(ifSuccess, ifFailed string) string {
+	if success || ifFailed == "" {
+		return ifSuccess
+	}
+	return ifFailed
+}
+
+func newMessage(c Config) Message {
+	msg := Message{
+		Cards: []Card{{
+			Header: Header{
+				Title:      selectValue(c.Title, c.TitleOnError),
+				Subtitle:   selectValue(c.Subtitle, c.SubtitleOnError),
+				ImageURL:   selectValue(c.ImageURL, c.ImageURLOnError),
+				ImageStyle: selectValue(c.ImageStyle, c.ImageStyleOnError),
+			},
+			Sections: []Section{{
+				Widgets: []Widget{{
+					TextParagraph: TextParagraph{
+						Text: selectValue(c.Text, c.TextOnError),
+					},
+				}, {
+					Buttons: []Button{{
+						TextButton: TextButton{
+							Text: "example website",
+							OnClick: OnClick{
+								OpenLink: OpenLink{
+									URL: "https://example.com",
+								},
+							},
+						},
+					}, {
+						ImageButton: ImageButton{
+							Icon: "CLOCK",
+							OnClick: OnClick{
+								OpenLink: OpenLink{
+									URL: "https://example.org",
+								},
+							},
+						},
+					}, {
+						ImageButton: ImageButton{
+							IconURL: "https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg",
+							OnClick: OnClick{
+								OpenLink: OpenLink{
+									URL: "https://bitrise.io/",
+								},
+							},
+						},
+					}},
+				}},
+			}},
+		}},
+	}
+
+	return msg
+}
+
+// postMessage sends a message to a channel.
+func postMessage(conf Config, msg Message) error {
+	b, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+	log.Debugf("Request to Google Chat: %s\n", b)
+
+	url := string(conf.WebhookURL)
+
+	req, err := http.NewRequest("POST", url, bytes.NewReader(b))
+	req.Header.Add("Content-Type", "application/json; charset=utf-8")
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to send the request: %s", err)
+	}
+	defer func() {
+		if cerr := resp.Body.Close(); err == nil {
+			err = cerr
+		}
+	}()
+
+	if resp.StatusCode != http.StatusOK {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("server error: %s, failed to read response: %s", resp.Status, err)
+		}
+		return fmt.Errorf("server error: %s, response: %s", resp.Status, body)
+	}
+
+	return nil
 }
 
 func main() {
@@ -23,22 +136,13 @@ func main() {
 	stepconf.Print(conf)
 	log.SetEnableDebugLog(conf.Debug)
 
-	// --- Step Outputs: Export Environment Variables for other Steps:
-	// You can export Environment Variables for other Steps with
-	//  envman, which is automatically installed by `bitrise setup`.
-	// A very simple example:
-	cmdLog, err := exec.Command("bitrise", "envman", "add", "--key", "EXAMPLE_STEP_OUTPUT", "--value", "the value you want to share").CombinedOutput()
-	if err != nil {
-		fmt.Printf("Failed to expose output with envman, error: %#v | output: %s", err, cmdLog)
+	msg := newMessage(conf)
+	if err := postMessage(conf, msg); err != nil {
+		log.Errorf("Error: %s", err)
 		os.Exit(1)
 	}
-	// You can find more usage examples on envman's GitHub page
-	//  at: https://github.com/bitrise-io/envman
 
-	//
-	// --- Exit codes:
-	// The exit code of your Step is very important. If you return
-	//  with a 0 exit code `bitrise` will register your Step as "successful".
-	// Any non zero exit code will be registered as "failed" by `bitrise`.
+	log.Donef("\nGoogle Chat message successfully sent! 🚀\n")
+
 	os.Exit(0)
 }
