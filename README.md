@@ -2,6 +2,7 @@
 
 Send messages to Google Chat using a webhook
 
+Based on https://github.com/bitrise-steplib/steps-slack-message
 
 ## How to use this Step
 
