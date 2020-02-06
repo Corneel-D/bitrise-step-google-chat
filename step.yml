@@ -62,8 +62,86 @@ toolkit:
   go:
     package_name: github.com/Corneel-D/bitrise-step-google-chat
 
-
 inputs:
+  - webhook_url:
+    opts:
+      title: "Chat Webhook URL"
+      description: |
+         For more information about **Incoming WebHook integration** visit: https://developers.google.com/hangouts/chat/how-tos/webhooks
+      is_required: true
+      is_sensitive: true
+
+  - title:
+    opts:
+      title: "Header title of the message to send."
+      description: |
+        Optional header title of the message to send.
+  - title_on_error:
+    opts:
+      title: "Header title of the message to send, if the build failed"
+      description: |
+        **This option will be used if the build failed.** If you
+        leave this option empty then the default one will be used.
+      category: If Build Failed
+
+  - subtitle:
+    opts:
+      title: "Header subtitle of the message to send."
+      description: |
+        Optional header subtitle of the message to send.
+  - subtitle_on_error:
+    opts:
+      title: "Header subtitle of the message to send, if the build failed"
+      description: |
+        **This option will be used if the build failed.** If you
+        leave this option empty then the default one will be used.
+      category: If Build Failed
+
+  - image:
+    opts:
+      title: "Header image to show to the right of the title"
+      description: |
+        Optional header image to show to the right of the title.
+  - image_on_error:
+    opts:
+      title: "Header image to show to the right of the title, if the build failed"
+      description: |
+        **This option will be used if the build failed.** If you
+        leave this option empty then the default one will be used.
+      category: If Build Failed
+
+  - image_style: square
+    opts:
+      title: "Header image style, if the build failed"
+      description: |
+        Controls the shape of the header image.
+        It can be square or circular. (default is square)
+      value_options:
+      - square
+      - circular
+  - image_style_on_error: square
+    opts:
+      title: "Header image style"
+      description: |
+        **This option will be used if the build failed.** If you
+        leave this option empty then the default one will be used.
+      value_options:
+      - square
+      - circular
+
+  - text:
+    opts:
+      title: "Text of the message to send."
+      description: |
+        Text of the message to send.
+  - text_on_error:
+    opts:
+      title: "Text of the message to send, if the build failed"
+      description: |
+        **This option will be used if the build failed.** If you
+        leave this option empty then the default one will be used.
+      category: If Build Failed
+
   - is_debug_mode: "no"
     opts:
       title: "Enable debug mode?"

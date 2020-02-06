@@ -24,8 +24,8 @@ type Config struct {
 	SubtitleOnError   string          `env:"subtitle_on_error"`
 	ImageURL          string          `env:"image"`
 	ImageURLOnError   string          `env:"image_on_error"`
-	ImageStyle        string          `env:"image_style,opt[IMAGE,AVATAR]"`
-	ImageStyleOnError string          `env:"image_style_on_error,opt[IMAGE,AVATAR]"`
+	ImageStyle        string          `env:"image_style,opt[square,circular]"`
+	ImageStyleOnError string          `env:"image_style_on_error,opt[square,circular]"`
 	Text              string          `env:"text"`
 	TextOnError       string          `env:"text_on_error"`
 }
@@ -43,7 +43,7 @@ func selectValue(ifSuccess, ifFailed string) string {
 func newMessage(c Config) Message {
 	msg := Message{
 		Cards: []Card{{
-			Header: Header{
+			Header: &Header{
 				Title:      selectValue(c.Title, c.TitleOnError),
 				Subtitle:   selectValue(c.Subtitle, c.SubtitleOnError),
 				ImageURL:   selectValue(c.ImageURL, c.ImageURLOnError),
@@ -51,33 +51,35 @@ func newMessage(c Config) Message {
 			},
 			Sections: []Section{{
 				Widgets: []Widget{{
-					TextParagraph: TextParagraph{
+					TextParagraph: &TextParagraph{
 						Text: selectValue(c.Text, c.TextOnError),
 					},
-				}, {
-					Buttons: []Button{{
-						TextButton: TextButton{
-							Text: "example website",
-							OnClick: OnClick{
-								OpenLink: OpenLink{
+				}},
+			}, {
+				Widgets: []Widget{{
+					Buttons: &[]Button{{
+						TextButton: &TextButton{
+							Text: "Example website",
+							OnClick: &OnClick{
+								OpenLink: &OpenLink{
 									URL: "https://example.com",
 								},
 							},
 						},
 					}, {
-						ImageButton: ImageButton{
+						ImageButton: &ImageButton{
 							Icon: "CLOCK",
-							OnClick: OnClick{
-								OpenLink: OpenLink{
+							OnClick: &OnClick{
+								OpenLink: &OpenLink{
 									URL: "https://example.org",
 								},
 							},
 						},
 					}, {
-						ImageButton: ImageButton{
+						ImageButton: &ImageButton{
 							IconURL: "https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg",
-							OnClick: OnClick{
-								OpenLink: OpenLink{
+							OnClick: &OnClick{
+								OpenLink: &OpenLink{
 									URL: "https://bitrise.io/",
 								},
 							},
@@ -127,6 +129,14 @@ func postMessage(conf Config, msg Message) error {
 	return nil
 }
 
+func validate(conf *Config) error {
+	if conf.WebhookURL == "" {
+		return fmt.Errorf("WebhookURL is empty. You need to provide one")
+	}
+
+	return nil
+}
+
 func main() {
 	var conf Config
 	if err := stepconf.Parse(&conf); err != nil {
@@ -135,6 +145,11 @@ func main() {
 	}
 	stepconf.Print(conf)
 	log.SetEnableDebugLog(conf.Debug)
+
+	if err := validate(&conf); err != nil {
+		log.Errorf("Error: %s\n", err)
+		os.Exit(1)
+	}
 
 	msg := newMessage(conf)
 	if err := postMessage(conf, msg); err != nil {
