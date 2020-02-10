@@ -91,10 +91,13 @@ workflows:
         - text_on_error: |
             Failed!
             Oh no! :rotating_light:
+
   missing-webhook-url-test:
     steps:
     - path::./:
         is_skippable: false
+        inputs:
+        - is_debug_mode: "yes"
 
 
   # ----------------------------------------------------------------
