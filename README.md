@@ -4,6 +4,11 @@ Send messages to Google Chat using a webhook
 
 Based on https://github.com/bitrise-steplib/steps-slack-message
 
+## TODO
+- [ ] Improve button parsing and update step info so it actually does wat it says it does
+- [ ] Add KeyValue options to the step
+- [ ] Add hyperlink validation (because google chat seems to render empty cards if a)
+
 ## How to use this Step
 
 Can be run directly with the [bitrise CLI](https://github.com/bitrise-io/bitrise),
