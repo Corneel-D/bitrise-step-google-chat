@@ -5,6 +5,9 @@ app:
   envs:
   # Define WEBHOOK_URL in .bitrise.secrets.yml
   - WEBHOOK_URL: $WEBHOOK_URL
+  - ENV_CONTENT: |-
+      Some content from an environment variable
+      <i>also</i><br><b>multiline<b>
   # If you want to share this step into a StepLib
   - BITRISE_STEP_ID: google-chat
   - BITRISE_STEP_VERSION: "0.0.1"
@@ -78,6 +81,14 @@ workflows:
             text|example.org website|https://example.org
             builtin-icon|EMAIL|mailto:user@example.org
             custom-icon|https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg|https://bitrise.io
+    - path::./:
+        title: Success with environment variable
+        is_skippable: false
+        inputs:
+        - is_debug_mode: "yes"
+        - webhook_url: $WEBHOOK_URL
+        - title: Success! 🎉
+        - text: Environment test<br>$ENV_CONTENT
   
   fail-message-test:
     steps:
