@@ -43,7 +43,7 @@ workflows:
             <i>some</i> <b>highlight</b>,
             and line<br>break
     - path::./:
-        title: On Success with Header
+        title: On Success with Header and buttons
         is_skippable: false
         inputs:
         - is_debug_mode: "yes"
@@ -55,11 +55,30 @@ workflows:
         - title_on_error: Failed! ⚠
         - subitle_on_error: it doesn't work :(
         - image_style_on_error: square
+        - buttons: |
+            text|example.org website|https://example.org
+            builtin-icon|EMAIL|mailto:user@example.org
+            custom-icon|https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg|https://bitrise.io
+    - path::./:
+        title: On Success with all Content Options
+        is_skippable: false
+        inputs:
+        - is_debug_mode: "yes"
+        - webhook_url: $WEBHOOK_URL
+        - title: Success! 🎉
+        - subitle: it works
+        - image: https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg
+        - image_style: circular
         - text: |
             First, On Success test
             Multiline, with a link: <a href="https://www.bitrise.io">www.bitrise.io</a>,
             <i>some</i> <b>highlight</b>,
             and line<br>break
+        - buttons: |
+            text|example.org website|https://example.org
+            builtin-icon|EMAIL|mailto:user@example.org
+            custom-icon|https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg|https://bitrise.io
+  
   fail-message-test:
     steps:
     - script:
@@ -88,6 +107,7 @@ workflows:
         - title_on_error: Failed! ⚠
         - subitle_on_error: it doesn't work :(
         - image_style_on_error: square
+        - text: Some text
         - text_on_error: |
             Failed!
             Oh no! :rotating_light:
@@ -98,6 +118,14 @@ workflows:
         is_skippable: false
         inputs:
         - is_debug_mode: "yes"
+
+  missing-content-test:
+    steps:
+    - path::./:
+        is_skippable: false
+        inputs:
+        - is_debug_mode: "yes"
+        - webhook_url: $WEBHOOK_URL
 
 
   # ----------------------------------------------------------------

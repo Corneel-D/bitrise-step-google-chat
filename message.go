@@ -2,7 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"regexp"
+	"fmt"
+	"strings"
 )
 
 // Message which can be send to Google Chat
@@ -16,7 +17,7 @@ type Card struct {
 	// header object (optional)
 	Header *Header `json:"header,omitempty"`
 	// sections object. At least one section is required
-	Sections []Section `json:"sections"`
+	Sections []Section `json:"sections,omitempty"`
 }
 
 // Header property of a card
@@ -64,7 +65,7 @@ type Section struct {
 	// Section header (optional)
 	Header string `json:"header,omitempty"`
 	// widgets object. At least one widget is required.
-	Widgets []Widget `json:"widgets"`
+	Widgets []*Widget `json:"widgets,omitempty"`
 }
 
 // Widget of a section. Can contain only one type of UI element
@@ -73,7 +74,7 @@ type Widget struct {
 	KeyValue      *KeyValue      `json:"keyValue,omitempty"`
 	Image         *Image         `json:"image,omitempty"`
 	// buttons object can contain one or more buttons. will be laid out horizontally
-	Buttons *[]Button `json:"buttons,omitempty"`
+	Buttons []*Button `json:"buttons,omitempty"`
 }
 
 // TextParagraph UI element
@@ -121,6 +122,65 @@ type ImageButton struct {
 	// either iconUrl of icon can be used
 	Icon    string   `json:"icon,omitempty"`
 	OnClick *OnClick `json:"onClick,omitempty"`
+}
+
+func parseButtons(s string) (buttons []*Button, err error) {
+	var buttonConf [][3]string
+	buttonConf, err = triples(s)
+	if err != nil {
+		return
+	}
+
+	for _, triple := range buttonConf {
+		onClick := &OnClick{
+			OpenLink: &OpenLink{
+				URL: triple[2],
+			},
+		}
+
+		if triple[0] == "text" {
+			buttons = append(buttons, &Button{
+				TextButton: &TextButton{
+					Text:    triple[1],
+					OnClick: onClick,
+				},
+			})
+		} else if triple[0] == "builtin-icon" {
+			buttons = append(buttons, &Button{
+				ImageButton: &ImageButton{
+					Icon:    triple[1],
+					OnClick: onClick,
+				},
+			})
+		} else if triple[0] == "custom-icon" {
+			buttons = append(buttons, &Button{
+				ImageButton: &ImageButton{
+					IconURL: triple[1],
+					OnClick: onClick,
+				},
+			})
+		} else {
+			err = fmt.Errorf("Unknown button type %s", triple[0])
+		}
+	}
+	return
+}
+
+// pairs slices every lines in s into two substrings separated by the first pipe
+// character and returns a slice of those pairs.
+func triples(s string) (ps [][3]string, err error) {
+	s = strings.TrimSpace(s)
+
+	for _, line := range strings.Split(s, "\n") {
+		splitString := strings.SplitN(line, "|", 3)
+
+		if len(splitString) == 3 && splitString[0] != "" && splitString[1] != "" && splitString[2] != "" {
+			ps = append(ps, [3]string{splitString[0], splitString[1], splitString[2]})
+		} else {
+			err = fmt.Errorf("Could not parse button with declaration %s", line)
+		}
+	}
+	return
 }
 
 // OnClick handler object

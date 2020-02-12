@@ -28,6 +28,8 @@ type Config struct {
 	ImageStyleOnError string          `env:"image_style_on_error,opt[square,circular]"`
 	Text              string          `env:"text"`
 	TextOnError       string          `env:"text_on_error"`
+	Buttons           string          `env:"buttons"`
+	ButtonsOnError    string          `env:"buttons_on_error"`
 }
 
 // success is true if the build is successful, false otherwise.
@@ -40,8 +42,37 @@ func selectValue(ifSuccess, ifFailed string) string {
 	return ifFailed
 }
 
-func newMessage(c Config) Message {
-	msg := Message{
+func newMessage(c Config) (msg Message, err error) {
+	sections := []Section{}
+
+	text := selectValue(c.Text, c.TextOnError)
+	if text != "" {
+		sections = append(sections, Section{
+			Widgets: []*Widget{{
+				TextParagraph: &TextParagraph{
+					Text: text,
+				},
+			}},
+		})
+	}
+
+	buttonConfig := selectValue(c.Buttons, c.ButtonsOnError)
+	if buttonConfig != "" {
+		var buttons []*Button
+		buttons, err = parseButtons(buttonConfig)
+
+		if err != nil {
+			return
+		}
+
+		sections = append(sections, Section{
+			Widgets: []*Widget{{
+				Buttons: buttons,
+			}},
+		})
+	}
+
+	msg = Message{
 		Cards: []Card{{
 			Header: &Header{
 				Title:      selectValue(c.Title, c.TitleOnError),
@@ -49,48 +80,11 @@ func newMessage(c Config) Message {
 				ImageURL:   selectValue(c.ImageURL, c.ImageURLOnError),
 				ImageStyle: selectValue(c.ImageStyle, c.ImageStyleOnError),
 			},
-			Sections: []Section{{
-				Widgets: []Widget{{
-					TextParagraph: &TextParagraph{
-						Text: selectValue(c.Text, c.TextOnError),
-					},
-				}},
-			}, {
-				Widgets: []Widget{{
-					Buttons: &[]Button{{
-						TextButton: &TextButton{
-							Text: "Example website",
-							OnClick: &OnClick{
-								OpenLink: &OpenLink{
-									URL: "https://example.com",
-								},
-							},
-						},
-					}, {
-						ImageButton: &ImageButton{
-							Icon: "CLOCK",
-							OnClick: &OnClick{
-								OpenLink: &OpenLink{
-									URL: "https://example.org",
-								},
-							},
-						},
-					}, {
-						ImageButton: &ImageButton{
-							IconURL: "https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg",
-							OnClick: &OnClick{
-								OpenLink: &OpenLink{
-									URL: "https://bitrise.io/",
-								},
-							},
-						},
-					}},
-				}},
-			}},
+			Sections: sections,
 		}},
 	}
 
-	return msg
+	return
 }
 
 // postMessage sends a message to a channel.
@@ -134,6 +128,10 @@ func validate(conf *Config) error {
 		return fmt.Errorf("WebhookURL is empty. You need to provide one")
 	}
 
+	if conf.Text == "" && conf.Buttons == "" {
+		return fmt.Errorf("Text and buttons are empty. You need to provide at least one")
+	}
+
 	return nil
 }
 
@@ -151,7 +149,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	msg := newMessage(conf)
+	msg, err := newMessage(conf)
+	if err != nil {
+		log.Errorf("Error: %s", err)
+		os.Exit(1)
+	}
+
 	if err := postMessage(conf, msg); err != nil {
 		log.Errorf("Error: %s", err)
 		os.Exit(1)

@@ -124,13 +124,41 @@ inputs:
     opts:
       title: "Text of the message to send."
       description: |
-        Text of the message to send.
+        Text of the message to send. At least one of text or buttons is required
   - text_on_error:
     opts:
       title: "Text of the message to send, if the build failed"
       description: |
         **This option will be used if the build failed.** If you
         leave this option empty then the default one will be used.
+      category: If Build Failed
+
+  - buttons:
+    opts:
+      title: "A list of buttons shown at the bottom of the card"
+      description: |
+        At least one of text or buttons is required.
+
+        Buttons separated by newlines and each button declaration contains a `type`, a `value` and a `url`. These fields are separated by a pipe | character. Empty lines and lines without a separator are omitted.
+
+        Types:
+        * `text`: `value` should be text
+        * `bultin-icon`: `value` should be the key of a built-in icon. A list of options can be found here: https://developers.google.com/hangouts/chat/reference/message-formats/cards#builtinicons
+        * `custom-icon`: `value` should be a url pointing to an icon.
+
+        `url` can be a normal url starting with `http://` or `https://`, but also urls like `mailto:`
+        
+        Example format:
+        ```
+        text|random text|https://example.org
+        builtin-icon|EMAIL|mailto:user@example.org
+        ```
+  - buttons_on_error:
+    opts:
+      title: "A list of buttons shown at the bottom of the card, if the build failed"
+      description: |
+        **This option will be used if the build failed.** If you leave this option empty then the default one will be used.
+        If you only want to add buttons to the success state fill this input with `-`, as anything not following the format will be ignored
       category: If Build Failed
 
   - is_debug_mode: "no"
