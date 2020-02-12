@@ -103,7 +103,7 @@ inputs:
 
   - image_style: square
     opts:
-      title: "Header image style, if the build failed"
+      title: "Header image style"
       description: |
         Controls the shape of the header image.
         It can be square or circular. (default is square)
@@ -112,7 +112,7 @@ inputs:
       - circular
   - image_style_on_error: square
     opts:
-      title: "Header image style"
+      title: "Header image style, if the build failed"
       description: |
         **This option will be used if the build failed.** If you
         leave this option empty then the default one will be used.
