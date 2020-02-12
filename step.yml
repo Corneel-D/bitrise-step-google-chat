@@ -119,6 +119,7 @@ inputs:
       value_options:
       - square
       - circular
+      category: If Build Failed
 
   - text:
     opts:
