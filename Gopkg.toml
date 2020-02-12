@@ -6,6 +6,10 @@
   branch = "master"
   name = "github.com/bitrise-io/go-utils"
 
+[[constraint]]
+  branch = "master"
+  name = "github.com/google/go-cmp"
+
 [prune]
   go-tests = true
   unused-packages = true

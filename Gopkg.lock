@@ -22,12 +22,27 @@
   pruneopts = "UT"
   revision = "948e80486906fb74dfa6012c80cbda6a6dac151a"
 
+[[projects]]
+  branch = "master"
+  digest = "1:0aeda02073125667ac6c9df50c7921cb22c08a4accdc54589c697a7e76be65c2"
+  name = "github.com/google/go-cmp"
+  packages = [
+    "cmp",
+    "cmp/internal/diff",
+    "cmp/internal/flags",
+    "cmp/internal/function",
+    "cmp/internal/value",
+  ]
+  pruneopts = "UT"
+  revision = "5a6f75716e1203a923a78c9efb94089d857df0f6"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/bitrise-io/go-steputils/stepconf",
     "github.com/bitrise-io/go-utils/log",
+    "github.com/google/go-cmp/cmp",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
