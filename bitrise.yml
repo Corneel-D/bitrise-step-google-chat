@@ -10,7 +10,7 @@ app:
       <i>also</i><br><b>multiline<b>
   # If you want to share this step into a StepLib
   - BITRISE_STEP_ID: google-chat
-  - BITRISE_STEP_VERSION: "0.1.1"
+  - BITRISE_STEP_VERSION: "0.1.2"
   - BITRISE_STEP_GIT_CLONE_URL: https://github.com/Corneel-D/bitrise-step-google-chat.git
   - MY_STEPLIB_REPO_FORK_GIT_URL: $MY_STEPLIB_REPO_FORK_GIT_URL
 
