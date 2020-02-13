@@ -30,23 +30,23 @@ type Header struct {
 }
 
 // MarshalJSON implements json.Marshaler.MarshalJSON.
-func (f Header) MarshalJSON() ([]byte, error) {
+func (h Header) MarshalJSON() ([]byte, error) {
 	m := make(map[string]interface{})
-	if f.Title != "" {
-		m["title"] = f.Title
+	if h.Title != "" {
+		m["title"] = h.Title
 	}
 
-	if f.Subtitle != "" {
-		m["subtitle"] = f.Subtitle
+	if h.Subtitle != "" {
+		m["subtitle"] = h.Subtitle
 	}
 
-	if f.ImageURL != "" {
-		m["imageUrl"] = f.ImageURL
+	if h.ImageURL != "" {
+		m["imageUrl"] = h.ImageURL
 
-		if f.ImageStyle != "" {
-			m["imageStyle"] = f.ImageStyle
+		if h.ImageStyle != "" {
+			m["imageStyle"] = h.ImageStyle
 
-			switch f.ImageStyle {
+			switch h.ImageStyle {
 			case "circular":
 				m["imageStyle"] = "AVATAR"
 			case "square":
