@@ -60,7 +60,6 @@ func Test_triples(t *testing.T) {
 			input: "text|example.org website|https://example.org\nbuiltin-icon|mailto:user@example.org\ncustom-icon|https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg|https://bitrise.io",
 			output: [][3]string{
 				[3]string{"text", "example.org website", "https://example.org"},
-				[3]string{"custom-icon", "https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg", "https://bitrise.io"},
 			},
 			err: "Could not parse button with declaration builtin-icon|mailto:user@example.org",
 		},

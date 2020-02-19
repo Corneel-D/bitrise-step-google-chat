@@ -132,37 +132,54 @@ func parseButtons(s string) (buttons []*Button, err error) {
 	}
 
 	for _, triple := range buttonConf {
-		onClick := &OnClick{
-			OpenLink: &OpenLink{
-				URL: triple[2],
+		var button *Button
+
+		button, err = parseButton(triple)
+		if err != nil {
+			return
+		}
+
+		buttons = append(buttons, button)
+	}
+
+	return
+}
+
+func parseButton(triple [3]string) (button *Button, err error) {
+	onClick := &OnClick{
+		OpenLink: &OpenLink{
+			URL: triple[2],
+		},
+	}
+
+	if triple[0] == "text" {
+		button = &Button{
+			TextButton: &TextButton{
+				Text:    triple[1],
+				OnClick: onClick,
 			},
 		}
 
-		if triple[0] == "text" {
-			buttons = append(buttons, &Button{
-				TextButton: &TextButton{
-					Text:    triple[1],
-					OnClick: onClick,
-				},
-			})
-		} else if triple[0] == "builtin-icon" {
-			buttons = append(buttons, &Button{
-				ImageButton: &ImageButton{
-					Icon:    triple[1],
-					OnClick: onClick,
-				},
-			})
-		} else if triple[0] == "custom-icon" {
-			buttons = append(buttons, &Button{
-				ImageButton: &ImageButton{
-					IconURL: triple[1],
-					OnClick: onClick,
-				},
-			})
-		} else {
-			err = fmt.Errorf("Unknown button type %s", triple[0])
+	} else if triple[0] == "builtin-icon" {
+		button = &Button{
+			ImageButton: &ImageButton{
+				Icon:    triple[1],
+				OnClick: onClick,
+			},
 		}
+
+	} else if triple[0] == "custom-icon" {
+		button = &Button{
+			ImageButton: &ImageButton{
+				IconURL: triple[1],
+				OnClick: onClick,
+			},
+		}
+
+	} else {
+		err = fmt.Errorf("Unknown button type %s", triple[0])
 	}
+
 	return
 }
 
@@ -172,14 +189,29 @@ func triples(s string) (ps [][3]string, err error) {
 	s = strings.TrimSpace(s)
 
 	for _, line := range strings.Split(s, "\n") {
-		splitString := strings.SplitN(line, "|", 3)
+		var tripple [3]string
 
-		if len(splitString) == 3 && splitString[0] != "" && splitString[1] != "" && splitString[2] != "" {
-			ps = append(ps, [3]string{splitString[0], splitString[1], splitString[2]})
-		} else {
-			err = fmt.Errorf("Could not parse button with declaration %s", line)
+		tripple, err = splitTriple(line)
+
+		if err != nil {
+			return
 		}
+
+		ps = append(ps, tripple)
 	}
+	return
+}
+
+func splitTriple(s string) (triple [3]string, err error) {
+	splitString := strings.SplitN(s, "|", 3)
+
+	if len(splitString) == 3 && splitString[0] != "" && splitString[1] != "" && splitString[2] != "" {
+		triple = [3]string{splitString[0], splitString[1], splitString[2]}
+
+	} else {
+		err = fmt.Errorf("Could not parse button with declaration %s", s)
+	}
+
 	return
 }
 
