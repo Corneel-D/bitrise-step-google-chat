@@ -85,12 +85,12 @@ func newMessage(c Config) (msg Message, err error) {
 	msg = Message{
 		Text: message,
 		Cards: []Card{{
-			Header: &Header{
-				Title:      selectValue(c.Title, c.TitleOnError),
-				Subtitle:   selectValue(c.Subtitle, c.SubtitleOnError),
-				ImageURL:   selectValue(c.ImageURL, c.ImageURLOnError),
-				ImageStyle: selectValue(c.ImageStyle, c.ImageStyleOnError),
-			},
+			Header: CreateHeader(
+				selectValue(c.Title, c.TitleOnError),
+				selectValue(c.Subtitle, c.SubtitleOnError),
+				selectValue(c.ImageURL, c.ImageURLOnError),
+				selectValue(c.ImageStyle, c.ImageStyleOnError),
+			),
 			Sections: sections,
 		}},
 	}

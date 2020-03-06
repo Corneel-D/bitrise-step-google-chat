@@ -61,6 +61,20 @@ func (h Header) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
+// CreateHeader creates a Header struct if at least one field is present, return nil pointer otherwise
+func CreateHeader(title, subtitle, imageURL, imageStyle string) *Header {
+	if title == "" && subtitle == "" && imageURL == "" && imageStyle == "" {
+		return nil
+	}
+
+	return &Header{
+		Title:      title,
+		Subtitle:   subtitle,
+		ImageURL:   imageURL,
+		ImageStyle: imageStyle,
+	}
+}
+
 // Section of a card. can contain multiple widgets, but at least one is required. Sections are separated by a horizontal line
 type Section struct {
 	// Section header (optional)
