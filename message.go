@@ -9,6 +9,7 @@ import (
 // Message which can be send to Google Chat
 // More info at https://developers.google.com/hangouts/chat/reference/message-formats/cards
 type Message struct {
+	Text  string `json:"text,omitempty"`
 	Cards []Card `json:"cards"`
 }
 

@@ -18,6 +18,8 @@ type Config struct {
 
 	// Message
 	WebhookURL        stepconf.Secret `env:"webhook_url"`
+	Message           string          `env:"message"`
+	MessageOnError    string          `env:"message_on_error"`
 	Title             string          `env:"title"`
 	TitleOnError      string          `env:"title_on_error"`
 	Subtitle          string          `env:"subtitle"`
@@ -72,7 +74,16 @@ func newMessage(c Config) (msg Message, err error) {
 		})
 	}
 
+	message := selectValue(c.Message, c.MessageOnError)
+	if message == "" {
+		message = selectValue(c.Title, c.TitleOnError)
+	}
+	if message == "" {
+		message = text
+	}
+
 	msg = Message{
+		Text: message,
 		Cards: []Card{{
 			Header: &Header{
 				Title:      selectValue(c.Title, c.TitleOnError),

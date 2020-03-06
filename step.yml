@@ -61,6 +61,24 @@ inputs:
          For more information about **Incoming WebHook integration** visit: https://developers.google.com/hangouts/chat/how-tos/webhooks
       is_required: true
       is_sensitive: true
+  
+  - message:
+    opts:
+      title: "The message shown in chat notifications and above the card"
+      description: |
+        Optional message shown in chat notifications and above the card.
+        If the message is empty, The following fields will be used if they are present (in order):
+        * title
+        * text
+
+        Chat will show "sent you an attachment" in all notifications if no "message", "title", or "text" are provided.
+  - message_on_error:
+    opts:
+      title: "The message shown in chat notifications and above the card, if the build failed"
+      description: |
+        **This option will be used if the build failed.** If you
+        leave this option empty then the default one will be used.
+      category: If Build Failed
 
   - title:
     opts:

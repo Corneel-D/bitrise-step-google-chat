@@ -86,6 +86,7 @@ func Test_newMessage(t *testing.T) {
 				Buttons:    "text|example.org website|https://example.org",
 			},
 			output: Message{
+				Text: "title",
 				Cards: []Card{{
 					Header: &Header{
 						Title:      "title",
@@ -128,6 +129,7 @@ func Test_newMessage(t *testing.T) {
 				Text:       "text",
 			},
 			output: Message{
+				Text: "title",
 				Cards: []Card{{
 					Header: &Header{
 						Title:      "title",
@@ -157,6 +159,92 @@ func Test_newMessage(t *testing.T) {
 				Buttons:    "text|example.org website|https://example.org",
 			},
 			output: Message{
+				Text: "title",
+				Cards: []Card{{
+					Header: &Header{
+						Title:      "title",
+						Subtitle:   "subtitle",
+						ImageURL:   "image url",
+						ImageStyle: "image style",
+					},
+					Sections: []Section{{
+						Widgets: []*Widget{{
+							Buttons: []*Button{{
+								TextButton: &TextButton{
+									Text: "example.org website",
+									OnClick: &OnClick{
+										OpenLink: &OpenLink{
+											URL: "https://example.org",
+										},
+									},
+								},
+							}},
+						}},
+					}},
+				}},
+			},
+			err: "",
+		},
+		// TODO
+		{
+			name: "Create message with buttons",
+			config: Config{
+				WebhookURL: "URL",
+				Buttons:    "text|example.org website|https://example.org",
+			},
+			output: Message{
+				Cards: []Card{{
+					Sections: []Section{{
+						Widgets: []*Widget{{
+							Buttons: []*Button{{
+								TextButton: &TextButton{
+									Text: "example.org website",
+									OnClick: &OnClick{
+										OpenLink: &OpenLink{
+											URL: "https://example.org",
+										},
+									},
+								},
+							}},
+						}},
+					}},
+				}},
+			},
+			err: "",
+		},
+		{
+			name: "Create message with text",
+			config: Config{
+				WebhookURL: "URL",
+				Text:       "text",
+			},
+			output: Message{
+				Text: "text",
+				Cards: []Card{{
+					Sections: []Section{{
+						Widgets: []*Widget{{
+							TextParagraph: &TextParagraph{
+								Text: "text",
+							},
+						}},
+					}},
+				}},
+			},
+			err: "",
+		},
+		{
+			name: "Create message with message, header, and buttons",
+			config: Config{
+				WebhookURL: "URL",
+				Message:    "message",
+				Title:      "title",
+				Subtitle:   "subtitle",
+				ImageURL:   "image url",
+				ImageStyle: "image style",
+				Buttons:    "text|example.org website|https://example.org",
+			},
+			output: Message{
+				Text: "message",
 				Cards: []Card{{
 					Header: &Header{
 						Title:      "title",
