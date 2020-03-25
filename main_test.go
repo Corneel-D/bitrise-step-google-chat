@@ -67,6 +67,112 @@ func Test_selectValue(t *testing.T) {
 	}
 }
 
+func Test_selectAvancedFormatValue(t *testing.T) {
+	tests := []struct {
+		name      string
+		success   bool
+		ifSuccess string
+		ifFailed  string
+		transform bool
+		output    string
+	}{
+		{
+			name:      "Success without transforming message",
+			success:   true,
+			ifSuccess: "*Successfull*",
+			ifFailed:  "*Failed*",
+			transform: false,
+			output:    "*Successfull*",
+		}, {
+			name:      "Success with transforming message",
+			success:   true,
+			ifSuccess: "*Successfull*",
+			ifFailed:  "*Failed*",
+			transform: true,
+			output:    "<b>Successfull</b>",
+		}, {
+			name:      "Failed without transforming message",
+			success:   false,
+			ifSuccess: "*Successfull*",
+			ifFailed:  "*Failed*",
+			transform: false,
+			output:    "*Failed*",
+		}, {
+			name:      "Failed with transforming message",
+			success:   false,
+			ifSuccess: "*Successfull*",
+			ifFailed:  "*Failed*",
+			transform: true,
+			output:    "<b>Failed</b>",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			success = tc.success
+
+			selected := selectAvancedFormatValue(tc.ifSuccess, tc.ifFailed, tc.transform)
+
+			if tc.output != selected {
+				t.Errorf("Returned string is not correct: expected %+v, got %+v", tc.output, selected)
+			}
+		})
+	}
+}
+
+func Test_selectSimpleFormatValue(t *testing.T) {
+	tests := []struct {
+		name      string
+		success   bool
+		ifSuccess string
+		ifFailed  string
+		transform bool
+		output    string
+	}{
+		{
+			name:      "Success without transforming message",
+			success:   true,
+			ifSuccess: "<b>Successfull</b>",
+			ifFailed:  "<b>Failed</b>",
+			transform: false,
+			output:    "<b>Successfull</b>",
+		}, {
+			name:      "Success with transforming message",
+			success:   true,
+			ifSuccess: "<b>Successfull</b>",
+			ifFailed:  "<b>Failed</b>",
+			transform: true,
+			output:    "*Successfull*",
+		}, {
+			name:      "Failed without transforming message",
+			success:   false,
+			ifSuccess: "<b>Successfull</b>",
+			ifFailed:  "<b>Failed</b>",
+			transform: false,
+			output:    "<b>Failed</b>",
+		}, {
+			name:      "Failed with transforming message",
+			success:   false,
+			ifSuccess: "<b>Successfull</b>",
+			ifFailed:  "<b>Failed</b>",
+			transform: true,
+			output:    "*Failed*",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			success = tc.success
+
+			selected := selectSimpleFormatValue(tc.ifSuccess, tc.ifFailed, tc.transform)
+
+			if tc.output != selected {
+				t.Errorf("Returned string is not correct: expected %+v, got %+v", tc.output, selected)
+			}
+		})
+	}
+}
+
 func Test_newMessage(t *testing.T) {
 	tests := []struct {
 		name   string

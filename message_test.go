@@ -215,3 +215,201 @@ func Test_parseButtons(t *testing.T) {
 		})
 	}
 }
+
+func Test_simpleToAdvancedFormat(t *testing.T) {
+	tests := []struct {
+		name   string
+		input  string
+		output string
+	}{
+		{
+			name:   "Replace at start of string",
+			input:  "*test test* test",
+			output: "<b>test test</b> test",
+		},
+		{
+			name:   "Replace in middle of string",
+			input:  "test *test* test",
+			output: "test <b>test</b> test",
+		},
+		{
+			name:   "Replace at end of string",
+			input:  "test *test test*",
+			output: "test <b>test test</b>",
+		},
+		{
+			name:   "Replace around whole string",
+			input:  "*test test test*",
+			output: "<b>test test test</b>",
+		},
+		{
+			name:   "Replace multiple",
+			input:  "*test* test *test*",
+			output: "<b>test</b> test <b>test</b>",
+		},
+		{
+			name:   "Replace nothing with other format",
+			input:  "_test test test_",
+			output: "_test test test_",
+		},
+		{
+			name:   "Replace nothing with reverse format",
+			input:  "<b>test test test</b>",
+			output: "<b>test test test</b>",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			formatted := simpleToAdvancedFormat("*", "b", tc.input)
+
+			if formatted != tc.output {
+				t.Errorf("Substitution failed.\nExpected: %s\nActual: %s", tc.output, formatted)
+			}
+		})
+	}
+}
+
+func Test_advancedToSimpleFormat(t *testing.T) {
+	tests := []struct {
+		name   string
+		input  string
+		output string
+	}{
+		{
+			name:   "Replace at start of string",
+			input:  "<b>test test</b> test",
+			output: "*test test* test",
+		},
+		{
+			name:   "Replace in middle of string",
+			input:  "test <b>test</b> test",
+			output: "test *test* test",
+		},
+		{
+			name:   "Replace at end of string",
+			input:  "test <b>test test</b>",
+			output: "test *test test*",
+		},
+		{
+			name:   "Replace around whole string",
+			input:  "<b>test test test</b>",
+			output: "*test test test*",
+		},
+		{
+			name:   "Replace multiple",
+			input:  "<b>test</b> test <b>test</b>",
+			output: "*test* test *test*",
+		},
+		{
+			name:   "Replace nothing with other format",
+			input:  "<i>test test test</i>",
+			output: "<i>test test test</i>",
+		},
+		{
+			name:   "Replace nothing with reverse format",
+			input:  "*test test test*",
+			output: "*test test test*",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			formatted := advancedToSimpleFormat("b", "*", tc.input)
+
+			if formatted != tc.output {
+				t.Errorf("Substitution failed.\nExpected: %s\nActual: %s", tc.output, formatted)
+			}
+		})
+	}
+}
+
+func Test_SimpleToAdvancedFormatting(t *testing.T) {
+	tests := []struct {
+		name   string
+		input  string
+		output string
+	}{
+		{
+			name:   "Different formats",
+			input:  "*test* _test_ ~test~\n<https://example.org|test>",
+			output: "<b>test</b> <i>test</i> <strike>test</strike>\n<a href=\"https://example.org\">test</a>",
+		},
+		{
+			name:   "Ignore backtics",
+			input:  "*test* _test_ `test` ~test~\n```test```",
+			output: "<b>test</b> <i>test</i> `test` <strike>test</strike>\n```test```",
+		},
+		{
+			name:   "Mixed formats",
+			input:  "_*test* test ~test_ <https://example.org|test>~",
+			output: "<i><b>test</b> test <strike>test</i> <a href=\"https://example.org\">test</a></strike>",
+		},
+		{
+			name:   "Mixed formats, not working over a newline",
+			input:  "_*test* test ~test_\n<https://example.org|test>~",
+			output: "<i><b>test</b> test ~test</i>\n<a href=\"https://example.org\">test</a>~",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			formatted := SimpleToAdvancedFormatting(tc.input)
+
+			if formatted != tc.output {
+				t.Errorf("Substitution failed.\nExpected: %s\nActual: %s", tc.output, formatted)
+			}
+		})
+	}
+}
+
+func Test_AdvancedToSimpleFormatting(t *testing.T) {
+	tests := []struct {
+		name   string
+		input  string
+		output string
+	}{
+		{
+			name:   "Different formats",
+			input:  "<b>test</b> <i>test</i> <strike>test</strike>\n<a href=\"https://example.org\">test</a>",
+			output: "*test* _test_ ~test~\n<https://example.org|test>",
+		},
+		{
+			name:   "Mixed formats",
+			input:  "<i><b>test</b> test <strike>test</i> <a href=\"https://example.org\">test</a></strike>",
+			output: "_*test* test ~test_ <https://example.org|test>~",
+		},
+		{
+			name:   "Mixed formats, not working over a newline",
+			input:  "<i><b>test</b> test <strike>test</i>\n<a href=\"https://example.org\">test</a></strike>",
+			output: "_*test* test <strike>test_\n<https://example.org|test></strike>",
+		},
+		{
+			name:   "Replace line breaks",
+			input:  "<i><b>test</b> test <strike>test</i><br><a href=\"https://example.org\">test</a></strike>",
+			output: "_*test* test <strike>test_\n<https://example.org|test></strike>",
+		},
+		{
+			name:   "Strip underline",
+			input:  "<b>test</b> <i>test</i> <strike>test</strike> <u>test</u>",
+			output: "*test* _test_ ~test~ test",
+		},
+		{
+			name:   "Strip font color",
+			input:  "<b>test</b> <i>test</i> <strike>test</strike> <font color=\"green\">test</font>",
+			output: "*test* _test_ ~test~ test",
+		},
+		// TODO Strip underline
+		// TODO strip font color
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			formatted := AdvancedToSimpleFormatting(tc.input)
+
+			if formatted != tc.output {
+				t.Errorf("Substitution failed.\nExpected: %s\nActual: %s", tc.output, formatted)
+			}
+		})
+	}
+}

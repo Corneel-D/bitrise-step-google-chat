@@ -32,6 +32,9 @@ type Config struct {
 	TextOnError       string          `env:"text_on_error"`
 	Buttons           string          `env:"buttons"`
 	ButtonsOnError    string          `env:"buttons_on_error"`
+
+	ConvertSimpleToAvancedFormat bool `env:"convert_simple_to_advanced_format,opt[yes,no]"`
+	ConvertAvancedToSimpleFormat bool `env:"convert_advanced_to_simple_format,opt[yes,no]"`
 }
 
 // success is true if the build is successful, false otherwise.
@@ -44,10 +47,30 @@ func selectValue(ifSuccess, ifFailed string) string {
 	return ifFailed
 }
 
+func selectAvancedFormatValue(ifSuccess, ifFailed string, simpleToAvancedFormat bool) string {
+	selected := selectValue(ifSuccess, ifFailed)
+
+	if simpleToAvancedFormat {
+		selected = SimpleToAdvancedFormatting(selected)
+	}
+
+	return selected
+}
+
+func selectSimpleFormatValue(ifSuccess, ifFailed string, advancedToSimpleFormat bool) string {
+	selected := selectValue(ifSuccess, ifFailed)
+
+	if advancedToSimpleFormat {
+		selected = AdvancedToSimpleFormatting(selected)
+	}
+
+	return selected
+}
+
 func newMessage(c Config) (msg Message, err error) {
 	sections := []Section{}
 
-	text := selectValue(c.Text, c.TextOnError)
+	text := selectAvancedFormatValue(c.Text, c.TextOnError, c.ConvertSimpleToAvancedFormat)
 	if text != "" {
 		sections = append(sections, Section{
 			Widgets: []*Widget{{
@@ -74,20 +97,20 @@ func newMessage(c Config) (msg Message, err error) {
 		})
 	}
 
-	message := selectValue(c.Message, c.MessageOnError)
+	message := selectSimpleFormatValue(c.Message, c.MessageOnError, c.ConvertAvancedToSimpleFormat)
 	if message == "" {
-		message = selectValue(c.Title, c.TitleOnError)
+		message = selectSimpleFormatValue(c.Title, c.TitleOnError, c.ConvertAvancedToSimpleFormat)
 	}
 	if message == "" {
-		message = text
+		message = selectSimpleFormatValue(c.Text, c.TextOnError, c.ConvertAvancedToSimpleFormat)
 	}
 
 	msg = Message{
 		Text: message,
 		Cards: []Card{{
 			Header: CreateHeader(
-				selectValue(c.Title, c.TitleOnError),
-				selectValue(c.Subtitle, c.SubtitleOnError),
+				selectAvancedFormatValue(c.Title, c.TitleOnError, c.ConvertSimpleToAvancedFormat),
+				selectAvancedFormatValue(c.Subtitle, c.SubtitleOnError, c.ConvertSimpleToAvancedFormat),
 				selectValue(c.ImageURL, c.ImageURLOnError),
 				selectValue(c.ImageStyle, c.ImageStyleOnError),
 			),

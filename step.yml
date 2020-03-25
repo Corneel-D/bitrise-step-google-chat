@@ -72,6 +72,8 @@ inputs:
         * text
 
         Chat will show "sent you an attachment" in all notifications if no "message", "title", or "text" are provided.
+
+        This message can be formatted using simple message formatting defined here: https://developers.google.com/hangouts/chat/reference/message-formats/basic
   - message_on_error:
     opts:
       title: "The message shown in chat notifications and above the card, if the build failed"
@@ -85,6 +87,8 @@ inputs:
       title: "Header title of the message to send."
       description: |
         Optional header title of the message to send.
+
+        See https://developers.google.com/hangouts/chat/reference/message-formats/cards#card_text_formatting for formatting options
   - title_on_error:
     opts:
       title: "Header title of the message to send, if the build failed"
@@ -98,6 +102,8 @@ inputs:
       title: "Header subtitle of the message to send."
       description: |
         Optional header subtitle of the message to send.
+
+        See https://developers.google.com/hangouts/chat/reference/message-formats/cards#card_text_formatting for formatting options
   - subtitle_on_error:
     opts:
       title: "Header subtitle of the message to send, if the build failed"
@@ -144,6 +150,8 @@ inputs:
       title: "Text of the message to send."
       description: |
         Text of the message to send. At least one of text or buttons is required
+
+        See https://developers.google.com/hangouts/chat/reference/message-formats/cards#card_text_formatting for formatting options
   - text_on_error:
     opts:
       title: "Text of the message to send, if the build failed"
@@ -179,6 +187,27 @@ inputs:
         **This option will be used if the build failed.** If you leave this option empty then the default one will be used.
         If you only want to add buttons to the success state fill this input with `-`, as anything not following the format will be ignored
       category: If Build Failed
+
+  - convert_simple_to_advanced_format: "no"
+    opts:
+      title: "Convert simple to advanced format?"
+      description: |
+        When enabled the fields accepting advanced formatting will also accept simple formatting by converting the message formatting.
+        Note that any simple formatting without an advanced formatting equivalent will be dropped.
+      value_options:
+      - "yes"
+      - "no"
+      category: Advanced Options
+  - convert_advanced_to_simple_format: "no"
+    opts:
+      title: "Convert advanced to simple format?"
+      description: |
+        When enabled the fields accepting simple formatting will also accept advanced formatting by converting the message formatting.
+        Note that any advanced formatting without a simple formatting equivalent will be dropped.
+      value_options:
+      - "yes"
+      - "no"
+      category: Advanced Options
 
   - is_debug_mode: "no"
     opts:

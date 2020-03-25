@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -238,4 +239,54 @@ type OnClick struct {
 // OpenLink object
 type OpenLink struct {
 	URL string `json:"url,omitempty"`
+}
+
+// simpleToAdvancedFormat converts one of chats markdown-like simple formats to its corresponding html based advanced format
+func simpleToAdvancedFormat(simpleFormat string, advancedFormat string, stringToFormat string) string {
+	var re = regexp.MustCompile("\\" + simpleFormat + "(.+?)\\" + simpleFormat + "")
+	return re.ReplaceAllString(stringToFormat, "<"+advancedFormat+">${1}</"+advancedFormat+">")
+}
+
+// advancedToSimpleFormat converts one of chats html based advanced formats to its corresponding markdown-like simple format
+func advancedToSimpleFormat(advancedFormat string, simpleFormat string, stringToFormat string) string {
+	var re = regexp.MustCompile("<" + advancedFormat + ">(.+?)</" + advancedFormat + ">")
+	return re.ReplaceAllString(stringToFormat, simpleFormat+"${1}"+simpleFormat)
+}
+
+// SimpleToAdvancedFormatting converts google chats simple formatting to the advanced formatting (as far as possible). Code strings and code blocks are not stripped.
+func SimpleToAdvancedFormatting(simple string) (formatted string) {
+	// Replacing links -- has to be done first because the other replacements will mess up this one
+	var linkRegexp = regexp.MustCompile(`<(.+?)\|(.+?)>`)
+	formatted = linkRegexp.ReplaceAllString(simple, `<a href="$1">$2</a>`)
+
+	// General format replacing
+	formatted = simpleToAdvancedFormat("*", "b", formatted)
+	formatted = simpleToAdvancedFormat("_", "i", formatted)
+	formatted = simpleToAdvancedFormat("~", "strike", formatted)
+
+	return
+}
+
+// AdvancedToSimpleFormatting converts google chats advanced formatting to the simple formatting (as far as possible)
+func AdvancedToSimpleFormatting(simple string) (formatted string) {
+	// Replacing line break
+	formatted = strings.ReplaceAll(simple, "<br>", "\n")
+
+	// General format replacing
+	formatted = advancedToSimpleFormat("b", "*", formatted)
+	formatted = advancedToSimpleFormat("i", "_", formatted)
+	formatted = advancedToSimpleFormat("strike", "~", formatted)
+
+	// Replacing links
+	var linkRegexp = regexp.MustCompile(`<a href="(.+?)">(.+?)</a>`)
+	formatted = linkRegexp.ReplaceAllString(formatted, `<$1|$2>`)
+
+	// Stripping underline by replacing it with nothing
+	formatted = advancedToSimpleFormat("u", "", formatted)
+
+	// Stripping font color
+	var fontColorRegexp = regexp.MustCompile(`<font color=".+?">(.+?)</font>`)
+	formatted = fontColorRegexp.ReplaceAllString(formatted, `$1`)
+
+	return
 }

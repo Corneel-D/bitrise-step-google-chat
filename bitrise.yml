@@ -45,13 +45,14 @@ workflows:
             Multiline, with a link: <a href="https://www.bitrise.io">www.bitrise.io</a>,
             <i>some</i> <b>highlight</b>,
             and line<br>break
+        - convert_advanced_to_simple_format: "yes"
     - path::./:
         title: On Success with Header and buttons
         is_skippable: false
         inputs:
         - is_debug_mode: "yes"
         - webhook_url: $WEBHOOK_URL
-        - title: Success! 🎉
+        - title: "<b>Success!</b> 🎉"
         - subtitle: it works
         - image: https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg
         - image_style: circular
@@ -74,7 +75,7 @@ workflows:
         - image: https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg
         - image_style: circular
         - text: |
-            First, On Success test
+            *First*, On Success test
             Multiline, with a link: <a href="https://www.bitrise.io">www.bitrise.io</a>,
             <i>some</i> <b>highlight</b>,
             and line<br>break
@@ -83,13 +84,14 @@ workflows:
             builtin-icon|EMAIL|mailto:user@example.org
             custom-icon|https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg|https://bitrise.io
     - path::./:
-        title: Success with environment variable
+        title: Success with environment variable and simple format
         is_skippable: false
         inputs:
         - is_debug_mode: "yes"
         - webhook_url: $WEBHOOK_URL
-        - title: Success! 🎉
-        - text: Environment test<br>$ENV_CONTENT
+        - title: "*Success!* 🎉"
+        - text: _Environment_ test<br>$ENV_CONTENT
+        - convert_simple_to_advanced_format: "yes"
   
   fail-message-test:
     steps:
