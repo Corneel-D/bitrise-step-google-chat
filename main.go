@@ -30,6 +30,8 @@ type Config struct {
 	ImageStyleOnError string          `env:"image_style_on_error,opt[square,circular]"`
 	Text              string          `env:"text"`
 	TextOnError       string          `env:"text_on_error"`
+	KeyValue          string          `env:"key_value"`
+	KeyValueOnError   string          `env:"key_value_on_error"`
 	Buttons           string          `env:"buttons"`
 	ButtonsOnError    string          `env:"buttons_on_error"`
 
@@ -78,6 +80,20 @@ func newMessage(c Config) (msg Message, err error) {
 					Text: text,
 				},
 			}},
+		})
+	}
+
+	keyValueConfig := selectValue(c.KeyValue, c.KeyValueOnError)
+	if keyValueConfig != "" {
+		var keyValueWidgets []*Widget
+		keyValueWidgets, err = ParseKeyValues(keyValueConfig)
+
+		if err != nil {
+			return
+		}
+
+		sections = append(sections, Section{
+			Widgets: keyValueWidgets,
 		})
 	}
 
@@ -162,8 +178,8 @@ func validate(conf *Config) error {
 		return fmt.Errorf("WebhookURL is empty. You need to provide one")
 	}
 
-	if conf.Text == "" && conf.Buttons == "" {
-		return fmt.Errorf("Text and buttons are empty. You need to provide at least one")
+	if conf.Text == "" && conf.Buttons == "" && conf.KeyValue == "" {
+		return fmt.Errorf("Text, keyValue and buttons are empty. You need to provide at least one")
 	}
 
 	return nil

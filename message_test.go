@@ -411,3 +411,250 @@ func Test_AdvancedToSimpleFormatting(t *testing.T) {
 		})
 	}
 }
+
+func Test_ParseKeyValues(t *testing.T) {
+	tests := []struct {
+		name   string
+		input  string
+		output []*Widget
+		err    string
+	}{
+		{
+			name:   "Empty KeyValue",
+			input:  ``,
+			output: nil,
+			err:    "",
+		},
+		{
+			name:   "Empty KeyValue array",
+			input:  `[]`,
+			output: nil,
+			err:    "KeyValue array should be either not defined or not empty",
+		},
+		{
+			name:   "Invalid KeyValue array value",
+			input:  `["Test"]`,
+			output: nil,
+			err:    "json: cannot unmarshal string into Go value of type main.KeyValueInput",
+		},
+		{
+			name:   "Invalid KeyValue object instead of array",
+			input:  `{"content": "content"}`,
+			output: nil,
+			err:    "json: cannot unmarshal object into Go value of type []main.KeyValueInput",
+		},
+		{
+			name:   "Invalid KeyValue",
+			input:  `[{"test": "test"}]`,
+			output: []*Widget{},
+			err:    "KeyValue Should have content",
+		},
+		{
+			name:   "invalid json",
+			input:  `[{"content": "content}]`,
+			output: nil,
+			err:    "unexpected end of JSON input",
+		},
+		{
+			name:  "Full KeyValue without button",
+			input: `[{"topLabel": "label 1", "content": "content", "contentMultiline": true, "bottomLabel": "label 2", "onClick": "https://example.org", "iconUrl": "https://example.com"}]`,
+			output: []*Widget{{
+				KeyValue: &KeyValue{
+					TopLabel:         "label 1",
+					Content:          "content",
+					ContentMultiline: "true",
+					BottomLabel:      "label 2",
+					OnClick: &OnClick{
+						OpenLink: &OpenLink{
+							URL: "https://example.org",
+						},
+					},
+					IconURL: "https://example.com",
+				},
+			}},
+			err: "",
+		},
+		{
+			name:  "KeyValue with icon",
+			input: `[{"content": "content", "icon": "CLOCK"}]`,
+			output: []*Widget{{
+				KeyValue: &KeyValue{
+					Content:          "content",
+					ContentMultiline: "false",
+					Icon:             "CLOCK",
+				},
+			}},
+			err: "",
+		},
+		{
+			name:  "KeyValue without iconUrl or icon",
+			input: `[{"content": "content"}]`,
+			output: []*Widget{{
+				KeyValue: &KeyValue{
+					Content:          "content",
+					ContentMultiline: "false",
+				},
+			}},
+			err: "",
+		},
+		{
+			name:   "KeyValue with both iconUrl and icon",
+			input:  `[{"content": "content", "iconUrl": "https://example.com", "icon": "CLOCK"}]`,
+			output: []*Widget{},
+			err:    "KeyValue object should have either an iconUrl, an icon, or neither, but not both",
+		},
+		{
+			name:  "Full KeyValue With Text button",
+			input: `[{"topLabel": "label 1", "content": "content", "contentMultiline": true, "bottomLabel": "label 2", "onClick": "https://example.org", "iconUrl": "https://example.com", "button": {"text": "button text", "onClick": "http://example.org"}}]`,
+			output: []*Widget{{
+				KeyValue: &KeyValue{
+					TopLabel:         "label 1",
+					Content:          "content",
+					ContentMultiline: "true",
+					BottomLabel:      "label 2",
+					OnClick: &OnClick{
+						OpenLink: &OpenLink{
+							URL: "https://example.org",
+						},
+					},
+					IconURL: "https://example.com",
+					Button: &Button{
+						TextButton: &TextButton{
+							Text: "button text",
+							OnClick: &OnClick{
+								OpenLink: &OpenLink{
+									URL: "http://example.org",
+								},
+							},
+						},
+					},
+				},
+			}},
+			err: "",
+		},
+		{
+			name:  "KeyValue With IconUrl button",
+			input: `[{"content": "content", "button": {"iconUrl": "http://example.com", "onClick": "http://example.org"}}]`,
+			output: []*Widget{{
+				KeyValue: &KeyValue{
+					Content:          "content",
+					ContentMultiline: "false",
+					Button: &Button{
+						ImageButton: &ImageButton{
+							IconURL: "http://example.com",
+							OnClick: &OnClick{
+								OpenLink: &OpenLink{
+									URL: "http://example.org",
+								},
+							},
+						},
+					},
+				},
+			}},
+			err: "",
+		},
+		{
+			name:  "Full KeyValue With Icon button",
+			input: `[{"content": "content", "button": {"icon": "MULTIPLE_PEOPLE", "onClick": "http://example.org"}}]`,
+			output: []*Widget{{
+				KeyValue: &KeyValue{
+					Content:          "content",
+					ContentMultiline: "false",
+					Button: &Button{
+						ImageButton: &ImageButton{
+							Icon: "MULTIPLE_PEOPLE",
+							OnClick: &OnClick{
+								OpenLink: &OpenLink{
+									URL: "http://example.org",
+								},
+							},
+						},
+					},
+				},
+			}},
+			err: "",
+		},
+		{
+			name:   "Throw an error when supplying both button text and button iconURL",
+			input:  `[{"content": "content", "button": {"text": "button text", "iconUrl": "http://example.com", "onClick": "http://example.org"}}]`,
+			output: []*Widget{},
+			err:    "KeyValue button should have either a text, an iconUrl, or an icon field, not multiple",
+		},
+		{
+			name:   "Throw an error when supplying both button text and button icon",
+			input:  `[{"content": "content", "button": {"text": "button text", "icon": "MULTIPLE_PEOPLE", "onClick": "http://example.org"}}]`,
+			output: []*Widget{},
+			err:    "KeyValue button should have either a text, an iconUrl, or an icon field, not multiple",
+		},
+		{
+			name:   "Throw an error when supplying both button iconUrl and button icon",
+			input:  `[{"content": "content", "button": {"iconUrl": "http://example.com", "icon": "MULTIPLE_PEOPLE", "onClick": "http://example.org"}}]`,
+			output: []*Widget{},
+			err:    "KeyValue button should have either a text, an iconUrl, or an icon field, not multiple",
+		},
+		{
+			name:   "Throw an error when supplying no button OnClick",
+			input:  `[{"content": "content", "button": {"text": "button text"}}]`,
+			output: []*Widget{},
+			err:    "KeyValue button should have an onClick value",
+		},
+		{
+			name:   "Throw an error when supplying an empty button object",
+			input:  `[{"content": "content", "button": {}}]`,
+			output: []*Widget{},
+			err:    "KeyValue button should have an onClick value",
+		},
+		{
+			name:   "Throw an error when supplying an invalid button object",
+			input:  `[{"content": "content", "button": ["test"]}]`,
+			output: nil,
+			err:    "json: cannot unmarshal array into Go struct field KeyValueInput.button of type main.ButtonInput",
+		},
+		{
+			name:  "Multiple KeyValue objects",
+			input: `[{"topLabel": "label 1", "content": "content", "contentMultiline": true, "bottomLabel": "label 2", "onClick": "https://example.org", "iconUrl": "https://example.com"}, {"content": "content 2!", "icon": "CLOCK"}]`,
+			output: []*Widget{{
+				KeyValue: &KeyValue{
+					TopLabel:         "label 1",
+					Content:          "content",
+					ContentMultiline: "true",
+					BottomLabel:      "label 2",
+					OnClick: &OnClick{
+						OpenLink: &OpenLink{
+							URL: "https://example.org",
+						},
+					},
+					IconURL: "https://example.com",
+				},
+			}, {
+				KeyValue: &KeyValue{
+					Content:          "content 2!",
+					ContentMultiline: "false",
+					Icon:             "CLOCK",
+				},
+			}},
+			err: "",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			widgets, err := ParseKeyValues(tc.input)
+			if (err == nil && tc.err != "") || (err != nil && err.Error() != tc.err) {
+				t.Errorf("Unexpected error: %s", err)
+				return
+			}
+
+			wdgs, wdgsErr := json.Marshal(widgets)
+			out, outErr := json.Marshal(tc.output)
+			if wdgsErr != nil || outErr != nil {
+				t.Errorf("Could not marshal json!\n%s\n%s", wdgsErr, outErr)
+				return
+			}
+
+			if !cmp.Equal(widgets, tc.output) {
+				t.Errorf("Returned widgets are not correct:\nexpected: %s\ngot:      %s", out, wdgs)
+			}
+		})
+	}
+}

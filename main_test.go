@@ -181,7 +181,7 @@ func Test_newMessage(t *testing.T) {
 		err    string
 	}{
 		{
-			name: "Create message with header, text and buttons",
+			name: "Create message with header, text, keyValues and buttons",
 			config: Config{
 				WebhookURL: "URL",
 				Title:      "title",
@@ -189,6 +189,7 @@ func Test_newMessage(t *testing.T) {
 				ImageURL:   "image url",
 				ImageStyle: "image style",
 				Text:       "text",
+				KeyValue:   `[{"topLabel":"top label","content":"content\non <i>multiple<\/i> lines","contentMultiline":true,"bottomLabel":"bottom label","onClick":"https://example.org","button":{"text":"button text","onClick":"http://example.org"}},{"content":"<b>content<\/b> :)","iconUrl":"https://example.com","button":{"iconUrl":"http://example.com","onClick":"http://example.org"}},{"content":"content.","icon":"CLOCK","button":{"icon":"MULTIPLE_PEOPLE","onClick":"http://example.org"}}]`,
 				Buttons:    "text|example.org website|https://example.org",
 			},
 			output: Message{
@@ -204,6 +205,62 @@ func Test_newMessage(t *testing.T) {
 						Widgets: []*Widget{{
 							TextParagraph: &TextParagraph{
 								Text: "text",
+							},
+						}},
+					}, {
+						Widgets: []*Widget{{
+							KeyValue: &KeyValue{
+								TopLabel:         "top label",
+								Content:          "content\non <i>multiple</i> lines",
+								ContentMultiline: "true",
+								BottomLabel:      "bottom label",
+								OnClick: &OnClick{
+									OpenLink: &OpenLink{
+										URL: "https://example.org",
+									},
+								},
+								Button: &Button{
+									TextButton: &TextButton{
+										Text: "button text",
+										OnClick: &OnClick{
+											OpenLink: &OpenLink{
+												URL: "http://example.org",
+											},
+										},
+									},
+								},
+							},
+						}, {
+							KeyValue: &KeyValue{
+								Content:          "<b>content</b> :)",
+								ContentMultiline: "false",
+								IconURL:          "https://example.com",
+								Button: &Button{
+									ImageButton: &ImageButton{
+										IconURL: "http://example.com",
+										OnClick: &OnClick{
+											OpenLink: &OpenLink{
+												URL: "http://example.org",
+											},
+										},
+									},
+								},
+							},
+						}, {
+							KeyValue: &KeyValue{
+								Content:          "content.",
+								ContentMultiline: "false",
+								Icon:             "CLOCK",
+								Button: &Button{
+									ImageButton: &ImageButton{
+										Icon: "MULTIPLE_PEOPLE",
+										OnClick: &OnClick{
+											OpenLink: &OpenLink{
+												URL: "http://example.org",
+											},
+										},
+									},
+								},
 							},
 						}},
 					}, {
@@ -291,7 +348,43 @@ func Test_newMessage(t *testing.T) {
 			},
 			err: "",
 		},
-		// TODO
+		{
+			name: "Create message with header, text, keyValues and buttons",
+			config: Config{
+				WebhookURL: "URL",
+				KeyValue:   `[{"topLabel":"top label","content":"content\non <i>multiple<\/i> lines","contentMultiline":true,"bottomLabel":"bottom label","onClick":"https://example.org","button":{"text":"button text","onClick":"http://example.org"}}]`,
+			},
+			output: Message{
+				Cards: []Card{{
+					Sections: []Section{{
+						Widgets: []*Widget{{
+							KeyValue: &KeyValue{
+								TopLabel:         "top label",
+								Content:          "content\non <i>multiple</i> lines",
+								ContentMultiline: "true",
+								BottomLabel:      "bottom label",
+								OnClick: &OnClick{
+									OpenLink: &OpenLink{
+										URL: "https://example.org",
+									},
+								},
+								Button: &Button{
+									TextButton: &TextButton{
+										Text: "button text",
+										OnClick: &OnClick{
+											OpenLink: &OpenLink{
+												URL: "http://example.org",
+											},
+										},
+									},
+								},
+							},
+						}},
+					}},
+				}},
+			},
+			err: "",
+		},
 		{
 			name: "Create message with buttons",
 			config: Config{
@@ -437,12 +530,19 @@ func Test_validate(t *testing.T) {
 			config: &Config{
 				WebhookURL: "URL",
 			},
-			err: "Text and buttons are empty. You need to provide at least one",
+			err: "Text, keyValue and buttons are empty. You need to provide at least one",
 		}, {
 			name: "Text",
 			config: &Config{
 				WebhookURL: "URL",
 				Text:       "Text",
+			},
+			err: "",
+		}, {
+			name: "KeyValue",
+			config: &Config{
+				WebhookURL: "URL",
+				KeyValue:   `[{"content": "content"}]`,
 			},
 			err: "",
 		}, {
@@ -453,10 +553,35 @@ func Test_validate(t *testing.T) {
 			},
 			err: "",
 		}, {
+			name: "Text and KeyValue",
+			config: &Config{
+				WebhookURL: "URL",
+				Text:       "Text",
+				KeyValue:   `[{"content": "content"}]`,
+			},
+			err: "",
+		}, {
 			name: "Text and buttons",
 			config: &Config{
 				WebhookURL: "URL",
 				Text:       "Text",
+				Buttons:    "Buttons",
+			},
+			err: "",
+		}, {
+			name: "KeyValue and buttons",
+			config: &Config{
+				WebhookURL: "URL",
+				KeyValue:   `[{"content": "content"}]`,
+				Buttons:    "Buttons",
+			},
+			err: "",
+		}, {
+			name: "Text, KeyValue and buttons",
+			config: &Config{
+				WebhookURL: "URL",
+				Text:       "Text",
+				KeyValue:   `{"content": "content"}`,
 				Buttons:    "Buttons",
 			},
 			err: "",

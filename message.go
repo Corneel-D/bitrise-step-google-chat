@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -111,6 +112,112 @@ type KeyValue struct {
 	// either iconUrl of icon can be used
 	Icon   string  `json:"icon,omitempty"`
 	Button *Button `json:"button,omitempty"`
+}
+
+// ParseKeyValues parses a simpler KeyValue json array to the KeyValue object used by the api
+func ParseKeyValues(raw string) (widgets []*Widget, err error) {
+	// ignore empty string
+	if raw == "" {
+		return
+	}
+
+	var keyValueInput []KeyValueInput
+
+	err = json.Unmarshal([]byte(raw), &keyValueInput)
+	if err != nil {
+		return
+	}
+
+	// Throw error for empty array
+	if len(keyValueInput) == 0 {
+		err = fmt.Errorf("KeyValue array should be either not defined or not empty")
+		return
+	}
+
+	widgets = []*Widget{}
+
+	for _, keyValue := range keyValueInput {
+		if keyValue.Content == "" {
+			err = fmt.Errorf("KeyValue Should have content")
+			return
+		}
+
+		// either iconUrl of icon can be used
+		if keyValue.IconURL != "" && keyValue.Icon != "" {
+			err = fmt.Errorf("KeyValue object should have either an iconUrl, an icon, or neither, but not both")
+			return
+		}
+
+		var onClick *OnClick
+		if keyValue.OnClick != "" {
+			onClick = &OnClick{
+				OpenLink: &OpenLink{
+					URL: keyValue.OnClick,
+				},
+			}
+		}
+
+		var button *Button
+		if keyValue.Button != nil {
+			if keyValue.Button.OnClick == "" {
+				err = fmt.Errorf("KeyValue button should have an onClick value")
+				return
+			}
+
+			if (keyValue.Button.Text != "" && (keyValue.Button.IconURL != "" || keyValue.Button.Icon != "")) || (keyValue.Button.IconURL != "" && (keyValue.Button.Text != "" || keyValue.Button.Icon != "")) {
+				err = fmt.Errorf("KeyValue button should have either a text, an iconUrl, or an icon field, not multiple")
+				return
+			}
+
+			var buttonOnClick = &OnClick{
+				OpenLink: &OpenLink{
+					URL: keyValue.Button.OnClick,
+				},
+			}
+
+			var textButton *TextButton
+			if keyValue.Button.Text != "" {
+				textButton = &TextButton{
+					Text:    keyValue.Button.Text,
+					OnClick: buttonOnClick,
+				}
+			}
+
+			var imageButton *ImageButton
+			if keyValue.Button.Icon != "" || keyValue.Button.IconURL != "" {
+				imageButton = &ImageButton{
+					IconURL: keyValue.Button.IconURL,
+					Icon:    keyValue.Button.Icon,
+					OnClick: buttonOnClick,
+				}
+			}
+
+			if textButton == nil && imageButton == nil {
+				err = fmt.Errorf("KeyValue button should have either an iconUrl, an icon or text field")
+				return
+			}
+
+			button = &Button{
+				TextButton:  textButton,
+				ImageButton: imageButton,
+			}
+		}
+
+		widgets = append(widgets, &Widget{
+			KeyValue: &KeyValue{
+				TopLabel:         keyValue.TopLabel,
+				Content:          keyValue.Content,
+				ContentMultiline: strconv.FormatBool(keyValue.ContentMultiline),
+				BottomLabel:      keyValue.BottomLabel,
+				OnClick:          onClick,
+				IconURL:          keyValue.IconURL,
+				Icon:             keyValue.Icon,
+				Button:           button,
+			},
+		})
+	}
+
+	return
 }
 
 // Image UI element
@@ -239,6 +346,26 @@ type OnClick struct {
 // OpenLink object
 type OpenLink struct {
 	URL string `json:"url,omitempty"`
+}
+
+// ButtonInput defines the input format of the Button objects
+type ButtonInput struct {
+	Text    string `json:"text,omitempty"`
+	IconURL string `json:"iconUrl,omitempty"` // either iconUrl of icon can be used
+	Icon    string `json:"icon,omitempty"`    // either iconUrl of icon can be used
+	OnClick string `json:"onClick,omitempty"`
+}
+
+// KeyValueInput defines the input format of the KeyValue object
+type KeyValueInput struct {
+	TopLabel         string       `json:"topLabel,omitempty"`
+	Content          string       `json:"content,omitempty"`
+	ContentMultiline bool         `json:"contentMultiline,omitempty"`
+	BottomLabel      string       `json:"bottomLabel,omitempty"`
+	OnClick          string       `json:"onClick,omitempty"`
+	IconURL          string       `json:"iconUrl,omitempty"` // either iconUrl of icon can be used
+	Icon             string       `json:"icon,omitempty"`    // either iconUrl of icon can be used
+	Button           *ButtonInput `json:"button,omitempty"`
 }
 
 // simpleToAdvancedFormat converts one of chats markdown-like simple formats to its corresponding html based advanced format
