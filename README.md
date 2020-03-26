@@ -6,8 +6,9 @@ Based on https://github.com/bitrise-steplib/steps-slack-message
 
 ## TODO
 - [ ] Improve button parsing and update step info so it actually does wat it says it does
-- [ ] Add KeyValue options to the step
-- [ ] Add hyperlink validation (because google chat seems to render empty cards if a)
+- [x] ~Add KeyValue options to the step~
+- [ ] Improve KeyValue JSON error messages
+- [ ] Add hyperlink validation (because google chat seems to render empty cards if an invalid url is used)
 
 ## How to use this Step
 
