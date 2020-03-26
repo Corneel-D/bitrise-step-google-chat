@@ -399,8 +399,6 @@ func Test_AdvancedToSimpleFormatting(t *testing.T) {
 			input:  "<b>test</b> <i>test</i> <strike>test</strike> <font color=\"green\">test</font>",
 			output: "*test* _test_ ~test~ test",
 		},
-		// TODO Strip underline
-		// TODO strip font color
 	}
 
 	for _, tc := range tests {
