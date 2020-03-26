@@ -87,8 +87,6 @@ inputs:
       title: "Header title of the message to send."
       description: |
         Optional header title of the message to send.
-
-        See https://developers.google.com/hangouts/chat/reference/message-formats/cards#card_text_formatting for formatting options
   - title_on_error:
     opts:
       title: "Header title of the message to send, if the build failed"
@@ -102,8 +100,6 @@ inputs:
       title: "Header subtitle of the message to send."
       description: |
         Optional header subtitle of the message to send.
-
-        See https://developers.google.com/hangouts/chat/reference/message-formats/cards#card_text_formatting for formatting options
   - subtitle_on_error:
     opts:
       title: "Header subtitle of the message to send, if the build failed"
