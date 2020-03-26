@@ -106,7 +106,7 @@ type KeyValue struct {
 	Content          string   `json:"content,omitempty"`
 	ContentMultiline string   `json:"contentMultiline,omitempty"`
 	BottomLabel      string   `json:"bottomLabel,omitempty"`
-	OnClick          *OnClick `json:"onClick,omitempty,omitempty"`
+	OnClick          *OnClick `json:"onClick,omitempty"`
 	// either iconUrl of icon can be used
 	IconURL string `json:"iconUrl,omitempty"`
 	// either iconUrl of icon can be used
