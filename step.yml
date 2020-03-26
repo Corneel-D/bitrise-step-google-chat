@@ -160,21 +160,21 @@ inputs:
     opts:
       title: "JSON specifying KeyValues"
       description: |
-        Array of KeyValues as JSON string.
+        Array of KeyValues as JSON string.  
 
         Each KeyValue object can have the following fields:
-        * topLabel: label above the content
-        * content: _required_ The main content of the keyValue
-        * contentMultiline: defines if the content should span multiple lines. _(defaults to false if not specified)_
-        * bottomLabel: label below the content
-        * onClick: url which will be activated when clicking on the keyValue
-        * iconUrl: URL to an icon to show at the start of the keyValue. Either iconUrl of icon can be specified in a keyValue object
-        * icon: name of the icon to show at the start of the keyValue. Either iconUrl of icon can be specified in a keyValue object
-        * button: Object consisting of the following fields _(can be omitted)_
-          - text: Text to show on the button. One of text, iconUrl of icon should be specified in a button object
-          - iconUrl: URL to an icon to show at the start of the keyValue. One of text, iconUrl of icon should be specified in a button object
-          - icon: name of the icon to show at the start of the keyValue. One of text, iconUrl of icon should be specified in a button object
-          - onClick: url which will be activated when clicking on the button _(required)_
+        - topLabel: label above the content
+        - content: _required_ The main content of the keyValue
+        - contentMultiline: defines if the content should span multiple lines. _(defaults to false if not specified)_
+        - bottomLabel: label below the content
+        - onClick: url which will be activated when clicking on the keyValue
+        - iconUrl: URL to an icon to show at the start of the keyValue. Either iconUrl of icon can be specified in a keyValue object
+        - icon: name of the icon to show at the start of the keyValue. Either iconUrl of icon can be specified in a keyValue object
+        - button: Object consisting of the following fields _(can be omitted)_
+            * text: Text to show on the button. One of text, iconUrl of icon should be specified in a button object
+            * iconUrl: URL to an icon to show at the start of the keyValue. One of text, iconUrl of icon should be specified in a button object
+            * icon: name of the icon to show at the start of the keyValue. One of text, iconUrl of icon should be specified in a button object
+            * onClick: url which will be activated when clicking on the button _(required)_  
         
         More information on KeyValues can be found here: https://developers.google.com/hangouts/chat/reference/message-formats/cards#keyvalue
         Note that this step is using a simplified JSON object for input compated to the api
