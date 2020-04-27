@@ -130,7 +130,7 @@ func ParseKeyValues(raw string) (widgets []*Widget, err error) {
 
 	// Throw error for empty array
 	if len(keyValueInput) == 0 {
-		err = fmt.Errorf("KeyValue array should be either not defined or not empty")
+		// Ignore an empty array: It is a way to remove the keyValues in case of an error
 		return
 	}
 

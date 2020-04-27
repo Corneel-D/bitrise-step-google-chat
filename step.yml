@@ -182,8 +182,9 @@ inputs:
     opts:
       title: "JSON specifying KeyValues, if the build failed"
       description: |
-        **This option will be used if the build failed.** If you
-        leave this option empty then the default one will be used.
+        **This option will be used if the build failed.** If you leave this option empty then the default one will be used.
+        
+        Can be left out by setting to an empty array `[]` if you don't want to show the KeyValues set for the success message.
       category: If Build Failed
 
   - buttons:

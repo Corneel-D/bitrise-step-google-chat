@@ -429,7 +429,7 @@ func Test_ParseKeyValues(t *testing.T) {
 			name:   "Empty KeyValue array",
 			input:  `[]`,
 			output: nil,
-			err:    "KeyValue array should be either not defined or not empty",
+			err:    "",
 		},
 		{
 			name:   "Invalid KeyValue array value",
