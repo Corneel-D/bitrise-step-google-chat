@@ -127,6 +127,27 @@ workflows:
         - text_on_error: |
             Failed!
             Oh no! :rotating_light:
+    - path::./:
+        title: On Error overriding keyValue
+        is_skippable: false
+        inputs:
+        - is_debug_mode: "yes"
+        - webhook_url: $WEBHOOK_URL
+        - title: Success! 🎉
+        - subtitle: it works
+        - image: https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg
+        - image_style: circular
+        - title_on_error: Failed! ⚠
+        - subtitle_on_error: it doesn't work :(
+        - image_style_on_error: square
+        - key_value: |
+            [{"topLabel":"top label","content":"content\non <i>multiple<\/i> lines","contentMultiline":true,"bottomLabel":"bottom label","onClick":"https://example.org","button":{"text":"button text","onClick":"https://example.org"}},{"content":"<b>content<\/b> :)","iconUrl":"https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg","button":{"iconUrl":"https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg","onClick":"https://bitrise.io"}},{"content":"content.","icon":"CLOCK","button":{"icon":"MULTIPLE_PEOPLE","onClick":"https://example.org"}}]
+        - key_value_on_error: |
+            []
+        - text: Some text
+        - text_on_error: |
+            Failed!
+            Oh no! :rotating_light:
 
   missing-webhook-url-test:
     steps:

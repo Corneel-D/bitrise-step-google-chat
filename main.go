@@ -92,9 +92,11 @@ func newMessage(c Config) (msg Message, err error) {
 			return
 		}
 
-		sections = append(sections, Section{
-			Widgets: keyValueWidgets,
-		})
+		if keyValueWidgets != nil {
+			sections = append(sections, Section{
+				Widgets: keyValueWidgets,
+			})
+		}
 	}
 
 	buttonConfig := selectValue(c.Buttons, c.ButtonsOnError)

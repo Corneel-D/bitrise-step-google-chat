@@ -20,7 +20,7 @@ func Test_triples(t *testing.T) {
 			name:  "Text button",
 			input: "text|example.org website|https://example.org",
 			output: [][3]string{
-				[3]string{"text", "example.org website", "https://example.org"},
+				{"text", "example.org website", "https://example.org"},
 			},
 			err: "",
 		},
@@ -28,7 +28,7 @@ func Test_triples(t *testing.T) {
 			name:  "Built-in icon button",
 			input: "builtin-icon|EMAIL|mailto:user@example.org",
 			output: [][3]string{
-				[3]string{"builtin-icon", "EMAIL", "mailto:user@example.org"},
+				{"builtin-icon", "EMAIL", "mailto:user@example.org"},
 			},
 			err: "",
 		},
@@ -36,7 +36,7 @@ func Test_triples(t *testing.T) {
 			name:  "Custom icon button",
 			input: "custom-icon|https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg|https://bitrise.io",
 			output: [][3]string{
-				[3]string{"custom-icon", "https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg", "https://bitrise.io"},
+				{"custom-icon", "https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg", "https://bitrise.io"},
 			},
 			err: "",
 		},
@@ -49,9 +49,9 @@ func Test_triples(t *testing.T) {
 			name:  "Multiple buttons",
 			input: "text|example.org website|https://example.org\nbuiltin-icon|EMAIL|mailto:user@example.org\ncustom-icon|https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg|https://bitrise.io",
 			output: [][3]string{
-				[3]string{"text", "example.org website", "https://example.org"},
-				[3]string{"builtin-icon", "EMAIL", "mailto:user@example.org"},
-				[3]string{"custom-icon", "https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg", "https://bitrise.io"},
+				{"text", "example.org website", "https://example.org"},
+				{"builtin-icon", "EMAIL", "mailto:user@example.org"},
+				{"custom-icon", "https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg", "https://bitrise.io"},
 			},
 			err: "",
 		},
@@ -59,7 +59,7 @@ func Test_triples(t *testing.T) {
 			name:  "Multiple buttons with one invalid",
 			input: "text|example.org website|https://example.org\nbuiltin-icon|mailto:user@example.org\ncustom-icon|https://pbs.twimg.com/profile_images/1039432724120051712/wFlFGsF3_400x400.jpg|https://bitrise.io",
 			output: [][3]string{
-				[3]string{"text", "example.org website", "https://example.org"},
+				{"text", "example.org website", "https://example.org"},
 			},
 			err: "Could not parse button with declaration builtin-icon|mailto:user@example.org",
 		},

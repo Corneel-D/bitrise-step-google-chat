@@ -470,6 +470,45 @@ func Test_newMessage(t *testing.T) {
 			err: "",
 		},
 		{
+			name: "Create message with message, header, buttons, and empty keyvalue",
+			config: Config{
+				WebhookURL: "URL",
+				Message:    "message",
+				Title:      "title",
+				Subtitle:   "subtitle",
+				ImageURL:   "image url",
+				ImageStyle: "image style",
+				Buttons:    "text|example.org website|https://example.org",
+				KeyValue:   "[]",
+			},
+			output: Message{
+				Text: "message",
+				Cards: []Card{{
+					Header: &Header{
+						Title:      "title",
+						Subtitle:   "subtitle",
+						ImageURL:   "image url",
+						ImageStyle: "image style",
+					},
+					Sections: []Section{{
+						Widgets: []*Widget{{
+							Buttons: []*Button{{
+								TextButton: &TextButton{
+									Text: "example.org website",
+									OnClick: &OnClick{
+										OpenLink: &OpenLink{
+											URL: "https://example.org",
+										},
+									},
+								},
+							}},
+						}},
+					}},
+				}},
+			},
+			err: "",
+		},
+		{
 			name: "Create message with button error",
 			config: Config{
 				WebhookURL: "URL",
